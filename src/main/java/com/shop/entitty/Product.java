@@ -1,8 +1,11 @@
 package com.shop.entitty;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -12,20 +15,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@SuppressWarnings("serial")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "products")
-public class Product {
+public class Product implements Serializable{
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long productId;
 	private String name;
 	private String quantity;
 	private String price;
 	private int discount;
+	private String image;
 	private String description;
 	private LocalDate enteredDate;
+	private Boolean status;
 	
 	@ManyToOne
 	@JoinColumn(name = "categoryId")
