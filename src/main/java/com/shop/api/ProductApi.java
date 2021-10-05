@@ -26,7 +26,7 @@ public class ProductApi {
 	
 	@GetMapping
 	public ResponseEntity<List<Product>> getAll() {
-		return ResponseEntity.ok(repo.findAll());
+		return ResponseEntity.ok(repo.findByStatusTrue());
 	}
 	
 	@GetMapping("{id}")
@@ -61,7 +61,10 @@ public class ProductApi {
 		if(!repo.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		repo.deleteById(id);
+		Product p = repo.findById(id).get();
+		p.setStatus(false);
+		repo.save(p);
+//		repo.deleteById(id);
 		return ResponseEntity.ok().build();
 	}
 }
