@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shop.entitty.Category;
 import com.shop.entitty.Product;
+import com.shop.repository.CategoryRepository;
 import com.shop.repository.ProductRepository;
 
 @CrossOrigin("*")
@@ -24,9 +26,31 @@ public class ProductApi {
 	@Autowired
 	ProductRepository repo;
 	
+	@Autowired
+	CategoryRepository cRepo;
+	
 	@GetMapping
 	public ResponseEntity<List<Product>> getAll() {
 		return ResponseEntity.ok(repo.findByStatusTrue());
+	}
+	
+	@GetMapping("bestseller")
+	public ResponseEntity<List<Product>> getBestSeller() {
+		return ResponseEntity.ok(repo.findByStatusTrueOrderBySoldDesc());
+	}
+	
+	@GetMapping("latest")
+	public ResponseEntity<List<Product>> getLasted() {
+		return ResponseEntity.ok(repo.findByStatusTrueOrderByEnteredDateDesc());
+	}
+	
+	@GetMapping("category/{id}")
+	public ResponseEntity<List<Product>> getByCategory(@PathVariable("id") Long id) {
+		if(!cRepo.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}		
+		Category c = cRepo.findById(id).get();
+		return ResponseEntity.ok(repo.findByCategory(c));
 	}
 	
 	@GetMapping("{id}")

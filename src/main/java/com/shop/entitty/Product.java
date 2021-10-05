@@ -33,6 +33,7 @@ public class Product implements Serializable{
 	private String description;
 	private LocalDate enteredDate;
 	private Boolean status;
+	private int sold;
 	
 	@ManyToOne
 	@JoinColumn(name = "categoryId")
