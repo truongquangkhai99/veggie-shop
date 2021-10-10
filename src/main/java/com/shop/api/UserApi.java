@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.shop.entitty.User;
 import com.shop.repository.UserRepository;
 
 @CrossOrigin("*")
+@RestController
 @RequestMapping("api/users")
 public class UserApi {
 	@Autowired
@@ -24,7 +26,7 @@ public class UserApi {
 	
 	@GetMapping
 	public ResponseEntity<List<User>> getAll() {
-		return ResponseEntity.ok(repo.findAll());
+		return ResponseEntity.ok(repo.findByStatusTrue());
 	}
 	
 	@GetMapping("{id}")
@@ -67,7 +69,10 @@ public class UserApi {
 		if(!repo.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		repo.deleteById(id);
+		User u = repo.findById(id).get();
+		u.setStatus(false);
+		repo.save(u);
+//		repo.deleteById(id);
 		return ResponseEntity.ok().build();
 	}
 }
