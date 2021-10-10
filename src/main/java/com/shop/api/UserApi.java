@@ -26,7 +26,7 @@ public class UserApi {
 	
 	@GetMapping
 	public ResponseEntity<List<User>> getAll() {
-		return ResponseEntity.ok(repo.findByStatusTrue());
+		return ResponseEntity.ok(repo.findByStatusTrueAndRoleFalse());
 	}
 	
 	@GetMapping("{id}")
@@ -39,7 +39,10 @@ public class UserApi {
 	
 	@GetMapping("email/{email}")
 	public ResponseEntity<User> getOneByEmail(@PathVariable("email") String email) {
-		return ResponseEntity.ok(repo.findByEmail(email));
+		if(repo.existsByEmail(email)) {			
+			return ResponseEntity.ok(repo.findByEmail(email));
+		}
+		return ResponseEntity.notFound().build();
 	}
 	
 	@PostMapping
@@ -50,6 +53,7 @@ public class UserApi {
 		if(repo.existsById(user.getUserId())) {
 			return ResponseEntity.badRequest().build();
 		}
+		user.setRole(false);
 		return ResponseEntity.ok(repo.save(user));
 	}
 	
@@ -61,6 +65,7 @@ public class UserApi {
 		if(!id.equals(user.getUserId())) {
 			return ResponseEntity.badRequest().build();
 		}
+		user.setRole(false);
 		return ResponseEntity.ok(repo.save(user));
 	}
 	

@@ -32,4 +32,5 @@ public class User implements Serializable{
 	private String image;
 	private LocalDate registerDate;
 	private Boolean status;
+	private Boolean role;
 }
