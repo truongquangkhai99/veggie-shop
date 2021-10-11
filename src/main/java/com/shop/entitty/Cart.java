@@ -25,6 +25,8 @@ public class Cart implements Serializable{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cartId;
 	private Double Amount;
+	private String address;
+	private String phone;
 	
 	@ManyToOne
 	@JoinColumn(name = "userId")

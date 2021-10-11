@@ -25,6 +25,7 @@ public class CartDetail implements Serializable{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cartDetailId;
 	private int quantity;
+	private Double price;
 	
 	@ManyToOne
 	@JoinColumn(name = "productId")

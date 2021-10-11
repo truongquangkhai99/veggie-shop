@@ -44,6 +44,16 @@ public class ProductApi {
 		return ResponseEntity.ok(repo.findByStatusTrueOrderByEnteredDateDesc());
 	}
 	
+	@GetMapping("rated")
+	public ResponseEntity<List<Product>> getRated() {
+		return ResponseEntity.ok(repo.findProductRated());
+	}
+	
+	@GetMapping("suggest/{id}")
+	public ResponseEntity<List<Product>> suggest(@PathVariable("id") Long categoryId) {
+		return ResponseEntity.ok(repo.findAll());
+	}
+	
 	@GetMapping("category/{id}")
 	public ResponseEntity<List<Product>> getByCategory(@PathVariable("id") Long id) {
 		if(!cRepo.existsById(id)) {

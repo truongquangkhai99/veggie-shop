@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shop.entitty.Cart;
 import com.shop.entitty.User;
+import com.shop.repository.CartRepository;
 import com.shop.repository.UserRepository;
 
 @CrossOrigin("*")
@@ -23,6 +25,9 @@ import com.shop.repository.UserRepository;
 public class UserApi {
 	@Autowired
 	UserRepository repo;
+	
+	@Autowired
+	CartRepository cartRepository;
 	
 	@GetMapping
 	public ResponseEntity<List<User>> getAll() {
@@ -54,7 +59,10 @@ public class UserApi {
 			return ResponseEntity.badRequest().build();
 		}
 		user.setRole(false);
-		return ResponseEntity.ok(repo.save(user));
+		User u =  repo.save(user);
+		Cart c = new Cart(0L, 0.0, u.getAddress(), u.getPhone(), u);
+		cartRepository.save(c);
+		return ResponseEntity.ok(u);
 	}
 	
 	@PutMapping("{id}")
