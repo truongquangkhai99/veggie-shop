@@ -25,9 +25,7 @@ public class OrderDetail implements Serializable{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long orderDetailId;
 	private int quantity;
-	private Double price;
-	private Double discount;
-	
+	private Double price;	
 	
 	@ManyToOne
 	@JoinColumn(name = "productId")

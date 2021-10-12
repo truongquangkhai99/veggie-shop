@@ -9,4 +9,5 @@ import com.shop.entitty.CartDetail;
 
 public interface CartDetailRepository extends JpaRepository<CartDetail, Long>{
 	List<CartDetail> findByCart(Cart cart);
+	void deleteByCart(Cart cart);
 }

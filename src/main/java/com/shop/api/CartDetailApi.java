@@ -39,7 +39,8 @@ public class CartDetailApi {
 		if (!cartRepository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(cartDetailRepository.findByCart(cartRepository.getById(id)));
+//		System.out.println(cartDetailRepository.findByCart(cartRepository.getById(id)).size());
+		return ResponseEntity.ok(cartDetailRepository.findByCart(cartRepository.findById(id).get()));
 	}
 	
 	@RequestMapping(value="{id}", method = RequestMethod.GET)
@@ -66,7 +67,7 @@ public class CartDetailApi {
 		if(!check) {
 			return ResponseEntity.notFound().build();			
 		}
-		List<CartDetail> listD = cartDetailRepository.findByCart(cartRepository.getById(detail.getCart().getCartId()));
+		List<CartDetail> listD = cartDetailRepository.findByCart(cartRepository.findById(detail.getCart().getCartId()).get());
 		for (CartDetail item : listD) {
 			if (item.getProduct().getProductId() == detail.getProduct().getProductId()) {
 				item.setQuantity(item.getQuantity() + 1);

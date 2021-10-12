@@ -28,17 +28,17 @@ public class CartApi {
 	@Autowired
 	UserRepository userRepository;
 	
-	@GetMapping("/user/{id}")
-	public ResponseEntity<Cart> getCartUser(@PathVariable("id") Long id) {
-		if(!userRepository.existsById(id)) {
+	@GetMapping("/user/{email}")
+	public ResponseEntity<Cart> getCartUser(@PathVariable("email") String email) {
+		if(!userRepository.existsByEmail(email)) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(cartRepository.findByUser(userRepository.findById(id).get()));
+		return ResponseEntity.ok(cartRepository.findByUser(userRepository.findByEmail(email)));
 	}
 	
-	@PutMapping("/user/{id}")
-	public ResponseEntity<Cart> putCartUser(@PathVariable("id") Long id, @RequestBody Cart cart) {
-		if(!userRepository.existsById(id)) {
+	@PutMapping("/user/{email}")
+	public ResponseEntity<Cart> putCartUser(@PathVariable("email") String email, @RequestBody Cart cart) {
+		if(!userRepository.existsByEmail(email)) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(cartRepository.save(cart));

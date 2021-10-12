@@ -1,7 +1,7 @@
 package com.shop.entitty;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,11 +25,11 @@ public class Order implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long ordersId;
-	private LocalDate orderDate;
+	private Date orderDate;
 	private Double amount;
 	private String address;
 	private String phone;
-	private Boolean status;
+	private int status;
 	
 	@ManyToOne
 	@JoinColumn(name = "userId")
