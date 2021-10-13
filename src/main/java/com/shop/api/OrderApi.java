@@ -17,11 +17,14 @@ import com.shop.entitty.Cart;
 import com.shop.entitty.CartDetail;
 import com.shop.entitty.Order;
 import com.shop.entitty.OrderDetail;
+import com.shop.entitty.Product;
 import com.shop.repository.CartDetailRepository;
 import com.shop.repository.CartRepository;
 import com.shop.repository.OrderDetailRepository;
 import com.shop.repository.OrderRepository;
+import com.shop.repository.ProductRepository;
 import com.shop.repository.UserRepository;
+import com.shop.utils.SendMailUtil;
 
 @CrossOrigin("*")
 @RestController
@@ -42,6 +45,17 @@ public class OrderApi {
 	@Autowired
 	CartDetailRepository cartDetailRepository;
 	
+	@Autowired
+	ProductRepository productRepository;
+	
+	@Autowired
+	SendMailUtil senMail;
+	
+	@GetMapping
+	public ResponseEntity<List<Order>> findAll() {
+		return ResponseEntity.ok(orderRepository.findAllByOrderByOrdersIdDesc());
+	}
+	
 	@GetMapping("{id}")
 	public ResponseEntity<Order> getById(@PathVariable("id") Long id) {
 		if(!orderRepository.existsById(id)) {
@@ -55,7 +69,7 @@ public class OrderApi {
 		if(!userRepository.existsByEmail(email)) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(orderRepository.findByUser(userRepository.findByEmail(email)));
+		return ResponseEntity.ok(orderRepository.findByUserOrderByOrdersIdDesc(userRepository.findByEmail(email)));
 	}
 	
 	@PostMapping("/{email}")
@@ -80,6 +94,56 @@ public class OrderApi {
 		for(CartDetail i : items) {
 			cartDetailRepository.delete(i);
 		}
+		senMail.sendMailOrder(order);
 		return ResponseEntity.ok(order);
+	}
+	
+	@GetMapping("cancel/{orderId}")
+	public ResponseEntity<Void> cancel(@PathVariable("orderId") Long id) {
+		if(!orderRepository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		Order order = orderRepository.findById(id).get();
+		order.setStatus(3);
+		orderRepository.save(order);
+		senMail.sendMailOrderCancel(order);
+		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("deliver/{orderId}")
+	public ResponseEntity<Void> deliver(@PathVariable("orderId") Long id) {
+		if(!orderRepository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		Order order = orderRepository.findById(id).get();
+		order.setStatus(1);
+		orderRepository.save(order);
+		senMail.sendMailOrderDeliver(order);
+		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("success/{orderId}")
+	public ResponseEntity<Void> success(@PathVariable("orderId") Long id) {
+		if(!orderRepository.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		Order order = orderRepository.findById(id).get();
+		order.setStatus(2);
+		orderRepository.save(order);
+		senMail.sendMailOrderSuccess(order);
+		updateProduct(order);
+		return ResponseEntity.ok().build();
+	}
+	
+	public void updateProduct(Order order) {
+		List<OrderDetail> listOrderDetail = orderDetailRepository.findByOrder(order);
+		for(OrderDetail orderDetail : listOrderDetail) {
+			Product product = productRepository.findById(orderDetail.getProduct().getProductId()).get();
+			if(product!=null) {
+				product.setQuantity(product.getQuantity() - orderDetail.getQuantity());
+				product.setSold(orderDetail.getQuantity());
+				productRepository.save(product);
+			}			
+		}
 	}
 }

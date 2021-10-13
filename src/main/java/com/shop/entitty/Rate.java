@@ -1,7 +1,7 @@
 package com.shop.entitty;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,7 +28,7 @@ public class Rate implements Serializable{
 	private Long id;
 	private Double rating;
 	private String comment;
-	private LocalDate rateDate;
+	private Date rateDate;
 	
 	@ManyToOne
 	@JoinColumn(name = "userId")
