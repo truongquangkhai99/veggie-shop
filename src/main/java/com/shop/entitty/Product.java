@@ -38,4 +38,11 @@ public class Product implements Serializable{
 	@ManyToOne
 	@JoinColumn(name = "categoryId")
 	private Category category;
+
+	@Override
+	public String toString() {
+		return "Product [productId=" + productId + ", name=" + name + ", quantity=" + quantity + ", price=" + price
+				+ ", discount=" + discount + ", image=" + image + ", description=" + description + ", enteredDate="
+				+ enteredDate + ", status=" + status + ", sold=" + sold + ", category=" + category + "]";
+	}
 }

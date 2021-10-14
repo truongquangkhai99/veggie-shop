@@ -49,9 +49,9 @@ public class ProductApi {
 		return ResponseEntity.ok(repo.findProductRated());
 	}
 	
-	@GetMapping("suggest/{id}")
-	public ResponseEntity<List<Product>> suggest(@PathVariable("id") Long categoryId) {
-		return ResponseEntity.ok(repo.findProductSuggest(categoryId, categoryId, categoryId));
+	@GetMapping("suggest/{categoryId}/{productId}")
+	public ResponseEntity<List<Product>> suggest(@PathVariable("categoryId") Long categoryId, @PathVariable("productId") Long productId) {
+		return ResponseEntity.ok(repo.findProductSuggest(categoryId, productId, categoryId, categoryId));
 	}
 	
 	@GetMapping("category/{id}")

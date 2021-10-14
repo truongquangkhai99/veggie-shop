@@ -141,7 +141,7 @@ public class OrderApi {
 			Product product = productRepository.findById(orderDetail.getProduct().getProductId()).get();
 			if(product!=null) {
 				product.setQuantity(product.getQuantity() - orderDetail.getQuantity());
-				product.setSold(orderDetail.getQuantity());
+				product.setSold(product.getSold() + orderDetail.getQuantity());
 				productRepository.save(product);
 			}			
 		}

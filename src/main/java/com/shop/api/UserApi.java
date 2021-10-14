@@ -77,6 +77,17 @@ public class UserApi {
 		return ResponseEntity.ok(repo.save(user));
 	}
 	
+	@PutMapping("admin/{id}")
+	public ResponseEntity<User> putAdmin(@PathVariable("id") Long id, @RequestBody User user) {
+		if(!repo.existsById(id)) {
+			return ResponseEntity.notFound().build();
+		}
+		if(!id.equals(user.getUserId())) {
+			return ResponseEntity.badRequest().build();
+		}
+		return ResponseEntity.ok(repo.save(user));
+	}
+	
 	@DeleteMapping("{id}")
 	public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
 		if(!repo.existsById(id)) {
