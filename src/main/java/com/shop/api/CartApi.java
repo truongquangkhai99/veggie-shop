@@ -33,7 +33,7 @@ public class CartApi {
 		if(!userRepository.existsByEmail(email)) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(cartRepository.findByUser(userRepository.findByEmail(email)));
+		return ResponseEntity.ok(cartRepository.findByUser(userRepository.findByEmail(email).get()));
 	}
 	
 	@PutMapping("/user/{email}")

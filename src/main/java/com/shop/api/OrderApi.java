@@ -69,7 +69,7 @@ public class OrderApi {
 		if(!userRepository.existsByEmail(email)) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(orderRepository.findByUserOrderByOrdersIdDesc(userRepository.findByEmail(email)));
+		return ResponseEntity.ok(orderRepository.findByUserOrderByOrdersIdDesc(userRepository.findByEmail(email).get()));
 	}
 	
 	@PostMapping("/{email}")
@@ -85,7 +85,7 @@ public class OrderApi {
 		for(CartDetail i : items) {
 			amount += i.getPrice();
 		}
-		Order order = orderRepository.save(new Order(0L, new Date(), amount, cart.getAddress(), cart.getPhone(), 0, userRepository.findByEmail(email)));
+		Order order = orderRepository.save(new Order(0L, new Date(), amount, cart.getAddress(), cart.getPhone(), 0, userRepository.findByEmail(email).get()));
 		for(CartDetail i : items) {
 			OrderDetail orderDetail = new OrderDetail(0L, i.getQuantity(), i.getPrice(), i.getProduct(), order);
 			orderDetailRepository.save(orderDetail);

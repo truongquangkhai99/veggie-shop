@@ -36,7 +36,7 @@ public class FavoritesApi {
 	@GetMapping("email/{email}")
 	public ResponseEntity<List<Favorite>> findByEmail(@PathVariable("email") String email) {
 		if(userRepository.existsByEmail(email)) {
-			return ResponseEntity.ok(favoriteRepository.findByUser(userRepository.findByEmail(email)));
+			return ResponseEntity.ok(favoriteRepository.findByUser(userRepository.findByEmail(email).get()));
 		}
 		return ResponseEntity.notFound().build();
 	}
@@ -54,7 +54,7 @@ public class FavoritesApi {
 		if(userRepository.existsByEmail(email)) {
 			if(productRepository.existsById(productId)) {
 				Product product = productRepository.findById(productId).get();
-				User user = userRepository.findByEmail(email);
+				User user = userRepository.findByEmail(email).get();
 				return ResponseEntity.ok(favoriteRepository.findByProductAndUser(product, user));
 			}
 		}

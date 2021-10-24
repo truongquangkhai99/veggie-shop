@@ -1,6 +1,10 @@
 package com.shop.api;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,90 +17,188 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 
+import com.shop.entitty.AppRole;
 import com.shop.entitty.Cart;
 import com.shop.entitty.User;
-import com.shop.repository.CartRepository;
+import com.shop.common.ERole;
+import com.shop.common.JwtUtils;
+import com.shop.dto.JwtResponse;
+import com.shop.dto.LoginRequest;
+import com.shop.dto.MessageResponse;
+import com.shop.dto.SignupRequest;
 import com.shop.repository.UserRepository;
+import com.shop.service.implement.UserDetailsImpl;
+import com.shop.repository.CartRepository;
+import com.shop.repository.AppRoleRepository;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("api/auth")
 public class UserApi {
 	@Autowired
-	UserRepository repo;
-	
+	AuthenticationManager authenticationManager;
+
+	@Autowired
+	UserRepository userRepository;
+
 	@Autowired
 	CartRepository cartRepository;
-	
+
+	@Autowired
+	AppRoleRepository roleRepository;
+
+	@Autowired
+	PasswordEncoder passwordEncoder;
+
+	@Autowired
+	JwtUtils jwtUtils;
+
 	@GetMapping
 	public ResponseEntity<List<User>> getAll() {
-		return ResponseEntity.ok(repo.findByStatusTrueAndRoleFalse());
+		return ResponseEntity.ok(userRepository.findByStatusTrue());
 	}
-	
+
 	@GetMapping("{id}")
 	public ResponseEntity<User> getOne(@PathVariable("id") Long id) {
-		if(!repo.existsById(id)) {
+		if (!userRepository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(repo.findById(id).get());
+		return ResponseEntity.ok(userRepository.findById(id).get());
 	}
-	
+
 	@GetMapping("email/{email}")
 	public ResponseEntity<User> getOneByEmail(@PathVariable("email") String email) {
-		if(repo.existsByEmail(email)) {			
-			return ResponseEntity.ok(repo.findByEmail(email));
+		if (userRepository.existsByEmail(email)) {
+			return ResponseEntity.ok(userRepository.findByEmail(email).get());
 		}
 		return ResponseEntity.notFound().build();
 	}
-	
+
 	@PostMapping
 	public ResponseEntity<User> post(@RequestBody User user) {
-		if(repo.existsByEmail(user.getEmail())) {
+		if (userRepository.existsByEmail(user.getEmail())) {
 			return ResponseEntity.notFound().build();
 		}
-		if(repo.existsById(user.getUserId())) {
+		if (userRepository.existsById(user.getUserId())) {
 			return ResponseEntity.badRequest().build();
 		}
-		user.setRole(false);
-		User u =  repo.save(user);
+
+		Set<AppRole> roles = new HashSet<>();
+		roles.add(new AppRole(1, null));
+
+		user.setRoles(roles);
+		
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+		User u = userRepository.save(user);
 		Cart c = new Cart(0L, 0.0, u.getAddress(), u.getPhone(), u);
 		cartRepository.save(c);
 		return ResponseEntity.ok(u);
 	}
-	
+
 	@PutMapping("{id}")
 	public ResponseEntity<User> put(@PathVariable("id") Long id, @RequestBody User user) {
-		if(!repo.existsById(id)) {
+		if (!userRepository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		if(!id.equals(user.getUserId())) {
+		if (!id.equals(user.getUserId())) {
 			return ResponseEntity.badRequest().build();
 		}
-		user.setRole(false);
-		return ResponseEntity.ok(repo.save(user));
+		
+		User temp = userRepository.findById(id).get();
+		
+		if(!user.getPassword().equals(temp.getPassword())) {
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
+		}
+		
+		Set<AppRole> roles = new HashSet<>();
+		roles.add(new AppRole(1, null));
+
+		user.setRoles(roles);
+		return ResponseEntity.ok(userRepository.save(user));
 	}
-	
+
 	@PutMapping("admin/{id}")
 	public ResponseEntity<User> putAdmin(@PathVariable("id") Long id, @RequestBody User user) {
-		if(!repo.existsById(id)) {
+		if (!userRepository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		if(!id.equals(user.getUserId())) {
+		if (!id.equals(user.getUserId())) {
 			return ResponseEntity.badRequest().build();
 		}
-		return ResponseEntity.ok(repo.save(user));
+		Set<AppRole> roles = new HashSet<>();
+		roles.add(new AppRole(2, null));
+
+		user.setRoles(roles);
+		return ResponseEntity.ok(userRepository.save(user));
 	}
-	
+
 	@DeleteMapping("{id}")
 	public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
-		if(!repo.existsById(id)) {
+		if (!userRepository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		User u = repo.findById(id).get();
+		User u = userRepository.findById(id).get();
 		u.setStatus(false);
-		repo.save(u);
+		userRepository.save(u);
 //		repo.deleteById(id);
 		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/signin")
+	public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
+
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String jwt = jwtUtils.generateJwtToken(authentication);
+
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+				.collect(Collectors.toList());
+
+		return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getName(),
+				userDetails.getEmail(), userDetails.getPassword(), userDetails.getPhone(), userDetails.getAddress(),
+				userDetails.getGender(), userDetails.getStatus(), userDetails.getImage(), userDetails.getRegisterDate(),
+				roles));
+
+	}
+
+	@PostMapping("/signup")
+	public ResponseEntity<?> registerUser(@Validated @RequestBody SignupRequest signupRequest) {
+
+		if (userRepository.existsByEmail(signupRequest.getEmail())) {
+			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already taken!"));
+
+		}
+
+		if (userRepository.existsByEmail(signupRequest.getEmail())) {
+
+			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is alreadv in use!"));
+
+		}
+
+		// create new user account
+		User user = new User(signupRequest.getName(), signupRequest.getEmail(),
+				passwordEncoder.encode(signupRequest.getPassword()), signupRequest.getPhone(),
+				signupRequest.getAddress(), signupRequest.getGender(), signupRequest.getStatus(),
+				signupRequest.getImage(), signupRequest.getRegisterDate());
+		Set<AppRole> roles = new HashSet<>();
+		roles.add(new AppRole(1, null));
+
+		user.setRoles(roles);
+		userRepository.save(user);
+		Cart c = new Cart(0L, 0.0, user.getAddress(), user.getPhone(), user);
+		cartRepository.save(c);
+		return ResponseEntity.ok(new MessageResponse("Đăng kí thành công"));
+
 	}
 }

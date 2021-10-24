@@ -39,7 +39,6 @@ public class CartDetailApi {
 		if (!cartRepository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-//		System.out.println(cartDetailRepository.findByCart(cartRepository.getById(id)).size());
 		return ResponseEntity.ok(cartDetailRepository.findByCart(cartRepository.findById(id).get()));
 	}
 	
