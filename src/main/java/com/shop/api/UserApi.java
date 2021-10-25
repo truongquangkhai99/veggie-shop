@@ -2,7 +2,6 @@ package com.shop.api;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,7 +26,6 @@ import org.springframework.validation.annotation.Validated;
 import com.shop.entitty.AppRole;
 import com.shop.entitty.Cart;
 import com.shop.entitty.User;
-import com.shop.common.ERole;
 import com.shop.common.JwtUtils;
 import com.shop.dto.JwtResponse;
 import com.shop.dto.LoginRequest;
@@ -200,5 +198,10 @@ public class UserApi {
 		cartRepository.save(c);
 		return ResponseEntity.ok(new MessageResponse("Đăng kí thành công"));
 
+	}
+	
+	@GetMapping("/logout")
+	public ResponseEntity<Void> logout() {
+		return ResponseEntity.ok().build();
 	}
 }

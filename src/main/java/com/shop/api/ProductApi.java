@@ -39,6 +39,11 @@ public class ProductApi {
 		return ResponseEntity.ok(repo.findByStatusTrueOrderBySoldDesc());
 	}
 	
+	@GetMapping("bestseller-admin")
+	public ResponseEntity<List<Product>> getBestSellerAdmin() {
+		return ResponseEntity.ok(repo.findTop10ByOrderBySoldDesc());
+	}
+	
 	@GetMapping("latest")
 	public ResponseEntity<List<Product>> getLasted() {
 		return ResponseEntity.ok(repo.findByStatusTrueOrderByEnteredDateDesc());

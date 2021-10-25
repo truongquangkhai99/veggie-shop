@@ -11,6 +11,7 @@ import com.shop.entitty.Product;
 public interface ProductRepository extends JpaRepository<Product, Long>{
 	List<Product> findByStatusTrue();
 	List<Product> findByStatusTrueOrderBySoldDesc();
+	List<Product> findTop10ByOrderBySoldDesc();
 	List<Product> findByStatusTrueOrderByQuantityDesc();
 	List<Product> findByStatusTrueOrderByEnteredDateDesc();
 	List<Product> findByCategory(Category category);
