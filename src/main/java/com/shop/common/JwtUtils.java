@@ -1,15 +1,18 @@
 package com.shop.common;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.shop.service.implement.UserDetailsImpl;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -38,6 +41,19 @@ public class JwtUtils {
 				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
 				.signWith(SignatureAlgorithm.HS512, jwtSecrect).compact();
 	}
+	
+	public String doGenerateToken(String email) {
+        Claims claims = Jwts.claims().setSubject(email);
+        claims.put("scopes", Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN")));
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuer("http://devglan.com")
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 5*60*60*1000))
+                .signWith(SignatureAlgorithm.HS256, jwtSecrect)
+                .compact();
+    }
 
 	public String getEmailFromJwtToken(String token) {
 		return Jwts.parser().setSigningKey(jwtSecrect).parseClaimsJws(token).getBody().getSubject();

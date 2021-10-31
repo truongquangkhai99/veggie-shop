@@ -32,6 +32,7 @@ import com.shop.dto.LoginRequest;
 import com.shop.dto.MessageResponse;
 import com.shop.dto.SignupRequest;
 import com.shop.repository.UserRepository;
+import com.shop.service.SendMailService;
 import com.shop.service.implement.UserDetailsImpl;
 import com.shop.repository.CartRepository;
 import com.shop.repository.AppRoleRepository;
@@ -57,7 +58,10 @@ public class UserApi {
 
 	@Autowired
 	JwtUtils jwtUtils;
-
+	
+	@Autowired
+	SendMailService sendMailService;
+	
 	@GetMapping
 	public ResponseEntity<List<User>> getAll() {
 		return ResponseEntity.ok(userRepository.findByStatusTrue());
@@ -94,7 +98,7 @@ public class UserApi {
 		user.setRoles(roles);
 		
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+		user.setToken(jwtUtils.doGenerateToken(user.getEmail()));
 		User u = userRepository.save(user);
 		Cart c = new Cart(0L, 0.0, u.getAddress(), u.getPhone(), u);
 		cartRepository.save(c);
@@ -175,20 +179,18 @@ public class UserApi {
 
 		if (userRepository.existsByEmail(signupRequest.getEmail())) {
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already taken!"));
-
 		}
 
 		if (userRepository.existsByEmail(signupRequest.getEmail())) {
-
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is alreadv in use!"));
-
 		}
+		
 
 		// create new user account
 		User user = new User(signupRequest.getName(), signupRequest.getEmail(),
 				passwordEncoder.encode(signupRequest.getPassword()), signupRequest.getPhone(),
 				signupRequest.getAddress(), signupRequest.getGender(), signupRequest.getStatus(),
-				signupRequest.getImage(), signupRequest.getRegisterDate());
+				signupRequest.getImage(), signupRequest.getRegisterDate(), jwtUtils.doGenerateToken(signupRequest.getEmail()));
 		Set<AppRole> roles = new HashSet<>();
 		roles.add(new AppRole(1, null));
 
@@ -203,5 +205,25 @@ public class UserApi {
 	@GetMapping("/logout")
 	public ResponseEntity<Void> logout() {
 		return ResponseEntity.ok().build();
+	}
+	
+	@PostMapping("send-mail-forgot-password-token")
+	public ResponseEntity<String> sendToken(@RequestBody String email) {
+		
+		if (!userRepository.existsByEmail(email)) {
+			return ResponseEntity.notFound().build();
+		}
+		User user = userRepository.findByEmail(email).get();
+		String token = user.getToken();
+		sendMaiToken(email,token, "Reset mật khẩu");
+		return ResponseEntity.ok().build();		
+		
+	}
+	
+	public void sendMaiToken(String email, String token, String title) {
+		String body = "\r\n"
+				+ "    <h2>Hãy nhấp vào link để thay đổi mật khẩu của bạn</h2>\r\n"
+				+ "    <a href=\"http://localhost:8989/forgot-password/"+token+"\">Đổi mật khẩu</a>";
+		sendMailService.queue(email, title, body);
 	}
 }

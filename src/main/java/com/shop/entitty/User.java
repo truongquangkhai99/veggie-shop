@@ -38,13 +38,14 @@ public class User implements Serializable{
 	private String image;
 	private LocalDate registerDate;
 	private Boolean status;
+	private String token;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<AppRole> roles = new HashSet<>();
 
 	public User( String name ,String email, String password, String phone, String address, Boolean gender
-			, Boolean status, String image, LocalDate registerDate) {
+			, Boolean status, String image, LocalDate registerDate, String token) {
 		this.name = name;
 		this.email = email;
 		this.password = password;
@@ -54,5 +55,6 @@ public class User implements Serializable{
 		this.status = status;
 		this.image = image;
 		this.registerDate = registerDate;
+		this.token = token;
 	}
 }
