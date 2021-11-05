@@ -30,6 +30,7 @@ public class ResetPasswordController {
 		}
 		map.addAttribute("name", user.getName());
 		map.addAttribute("email", user.getEmail());
+		map.addAttribute("token", token);
 		map.addAttribute("password", "");
 		map.addAttribute("confirm", "");
 		return "/reset-password";
@@ -37,13 +38,14 @@ public class ResetPasswordController {
 
 	@PostMapping
 	public String reset(@RequestParam("password") String password, @RequestParam("confirm") String confirm,
-			@RequestParam("email") String email, @RequestParam("name") String name, Model map) {
+			@RequestParam("email") String email, @RequestParam("name") String name, @RequestParam("token") String token, Model map) {
 		if (password.length() < 6) {
 			map.addAttribute("password", password);
 			map.addAttribute("confirm", confirm);
 			map.addAttribute("errorPassword", "error");
 			map.addAttribute("name", name);
 			map.addAttribute("email", email);
+			map.addAttribute("token", token);
 			return "/reset-password";
 		}
 		if (!password.equals(confirm)) {
@@ -52,10 +54,12 @@ public class ResetPasswordController {
 			map.addAttribute("email", email);
 			map.addAttribute("password", password);
 			map.addAttribute("confirm", confirm);
+			map.addAttribute("token", token);
 			return "/reset-password";
 		}
-		User user = userRepository.findByEmail(email).get();
+		User user = userRepository.findByToken(token);
 		user.setPassword(passwordEncoder.encode(password));
+		user.setStatus(true);
 		userRepository.save(user);
 		return "redirect:/forgot-password/done";
 	}
