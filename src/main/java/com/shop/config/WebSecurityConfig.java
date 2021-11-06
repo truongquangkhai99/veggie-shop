@@ -62,7 +62,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						"api/favorites/email/**",
 						"api/cartDetail/**",
 						"api/auth/email/**", "api/auth/signin/**", "api/auth/signin/**",
-						"api/auth/send-mail-forgot-password-token", "forgot-password")
+						"api/auth/send-mail-forgot-password-token", "forgot-password", 
+						"api/notification/**")						
 				.permitAll();
 
 		http.authorizeRequests().antMatchers("api/orderDetail/**", "api/cart/**").access("hasRole('ROLE_USER')");
