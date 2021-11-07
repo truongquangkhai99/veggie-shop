@@ -11,7 +11,7 @@ import com.shop.entitty.Notification;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long>{
-	List<Notification> findTop6ByOrderByIdDesc();
+	List<Notification> findByOrderByIdDesc();
 	
 	@Modifying
 	@Query(value = "update notification set status = true", nativeQuery = true)

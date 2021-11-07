@@ -25,7 +25,7 @@ public class NotificationApi {
 	
 	@GetMapping
 	public ResponseEntity<List<Notification>> getAll() {
-		return ResponseEntity.ok(notificationRepository.findTop6ByOrderByIdDesc());
+		return ResponseEntity.ok(notificationRepository.findByOrderByIdDesc());
 	}
 	
 	@PostMapping
