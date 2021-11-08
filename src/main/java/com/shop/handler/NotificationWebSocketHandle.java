@@ -1,14 +1,14 @@
 package com.shop.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ChatWebSocketHandler extends TextWebSocketHandler {
+public class NotificationWebSocketHandle extends TextWebSocketHandler{
 
 	private final List<WebSocketSession> webSocketSessions = new ArrayList<>();
 

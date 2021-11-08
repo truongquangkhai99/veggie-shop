@@ -7,21 +7,21 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import com.shop.handler.ChatWebSocketHandler;
+import com.shop.handler.NotificationWebSocketHandle;
 
 @Configuration
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
-	private final static String CHAT_ENDPOINT = "/chat";
+	private final static String NOTIFICATION_ENDPOINT = "/notification";
 
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
-		webSocketHandlerRegistry.addHandler(getChatWebSocketHandler(), CHAT_ENDPOINT).setAllowedOrigins("*");
+		webSocketHandlerRegistry.addHandler(getNotificationWebSocketHandler(), NOTIFICATION_ENDPOINT).setAllowedOrigins("*");
 	}
 
 	@Bean
-	public WebSocketHandler getChatWebSocketHandler() {
-		return new ChatWebSocketHandler();
+	public WebSocketHandler getNotificationWebSocketHandler() {
+		return new NotificationWebSocketHandle();
 	}
 }
