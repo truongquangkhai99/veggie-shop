@@ -135,6 +135,37 @@ public class OrderApi {
 		return ResponseEntity.ok().build();
 	}
 	
+	@PostMapping("payment/{email}")
+	public ResponseEntity<Order> checkoutAndPayment(@PathVariable("email") String email, @RequestBody Cart cart) {
+		if(!userRepository.existsByEmail(email)) {
+			return ResponseEntity.notFound().build();
+		}
+		if(!cartRepository.existsById(cart.getCartId())) {
+			return ResponseEntity.notFound().build();
+		}
+		List<CartDetail> items = cartDetailRepository.findByCart(cart);
+		Double amount = 0.0;
+		for(CartDetail i : items) {
+			amount += i.getPrice();
+		}
+		Order order = orderRepository.save(new Order(0L, new Date(), amount, cart.getAddress(), cart.getPhone(), 0, userRepository.findByEmail(email).get()));
+		for(CartDetail i : items) {
+			OrderDetail orderDetail = new OrderDetail(0L, i.getQuantity(), i.getPrice(), i.getProduct(), order);
+			orderDetailRepository.save(orderDetail);
+		}
+//		cartDetailRepository.deleteByCart(cart);
+		for(CartDetail i : items) {
+			cartDetailRepository.delete(i);
+		}
+		//set lai don hang
+		order.setStatus(4);
+		orderRepository.save(order);
+		senMail.sendMailOrderPaymented(order);
+		updateProduct(order);
+
+		return ResponseEntity.ok(order);
+	}
+	
 	public void updateProduct(Order order) {
 		List<OrderDetail> listOrderDetail = orderDetailRepository.findByOrder(order);
 		for(OrderDetail orderDetail : listOrderDetail) {

@@ -152,6 +152,70 @@ public class SendMailUtil {
 						+ "                                                            <p>" + order.getPhone()
 						+ "</p>\r\n" + "                                                        </td>");
 		content.append(FOOTER);
+		sendMailService.queue(order.getUser().getEmail(), "Giao hàng thành công", content.toString());
+	}
+	public void sendMailOrderPaymented(Order order) {
+		SimpleDateFormat dt = new SimpleDateFormat("dd-MM-yyyy");
+		List<OrderDetail> listOrderDetails = orderDetailRepository.findByOrder(order);
+		StringBuilder content = new StringBuilder();
+		content.append(HEADERPAYMENT);
+		for (OrderDetail oderDetail : listOrderDetails) {
+			content.append("<tr>\r\n"
+					+ "                                                    <td width=\"25%\" align=\"left\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;text-align: center;\">\r\n"
+					+ "                                                        <img style=\"width: 85%;\" src="
+					+ oderDetail.getProduct().getImage() + ">\r\n"
+					+ "                                                    </td>\r\n"
+					+ "                                                    <td width=\"25%\" align=\"left\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;\"> "
+					+ oderDetail.getProduct().getName() + " </td>\r\n"
+					+ "                                                    <td width=\"25%\" align=\"left\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;\"> "
+					+ oderDetail.getQuantity() + " </td>\r\n"
+					+ "                                                    <td width=\"25%\" align=\"left\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;\"> "
+					+ format(String.valueOf(oderDetail.getPrice())) + " </td>\r\n"
+					+ "                                                </tr>");
+		}
+		content.append(BODY2);
+		content.append(
+				"<td width=\"55%\" align=\"left\" style=\"font-family: Open sans-serif; font-size: 20px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;\"> Tổng tiền: </td>\r\n"
+						+ "                                                    <td width=\"25%\" align=\"left\" style=\"font-family: Open sans-serif; font-size: 20px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee; color: red;\"> "
+						+ format(String.valueOf(order.getAmount())) + " </td>");
+		content.append(BODY3);
+		content.append(
+				"<td align=\"center\" valign=\"top\" style=\"font-family: Open sans-serif; font-size: 20px; font-weight: 400; line-height: 24px;\">\r\n"
+						+ "                                                            <p style=\"font-weight: 800;\">Địa chỉ giao hàng</p>\r\n"
+						+ "                                                            <p>" + order.getAddress()
+						+ "</p>\r\n" + "                                                        </td>\r\n"
+						+ "                                                    </tr>\r\n"
+						+ "                                                </table>\r\n"
+						+ "                                            </div>\r\n"
+						+ "                                            <div style=\"display:inline-block; max-width:50%; min-width:240px; vertical-align:top; width:100%;\">\r\n"
+						+ "                                                <table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:300px;\">\r\n"
+						+ "                                                    <tr>\r\n"
+						+ "                                                        <td align=\"center\" valign=\"top\" style=\"font-family: Open sans-serif; font-size: 20px; font-weight: 400; line-height: 24px;\">\r\n"
+						+ "                                                            <p style=\"font-weight: 800;\">Ngày đặt hàng</p>\r\n"
+						+ "                                                            <p>"
+						+ dt.format(order.getOrderDate()) + "</p>\r\n"
+						+ "                                                        </td>\r\n"
+						+ "                                                    </tr>\r\n"
+						+ "                                                </table>\r\n"
+						+ "                                            </div>\r\n"
+						+ "                                            <div style=\"display:inline-block; max-width:50%; min-width:240px; vertical-align:top; width:100%;\">\r\n"
+						+ "                                                <table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:300px;\">\r\n"
+						+ "                                                    <tr>\r\n"
+						+ "                                                        <td align=\"center\" valign=\"top\" style=\"font-family: Open sans-serif; font-size: 20px; font-weight: 400; line-height: 24px;\">\r\n"
+						+ "                                                            <p style=\"font-weight: 800;\">Tên người nhận</p>\r\n"
+						+ "                                                            <p>" + order.getUser().getName()
+						+ "</p>\r\n" + "                                                        </td>\r\n"
+						+ "                                                    </tr>\r\n"
+						+ "                                                </table>\r\n"
+						+ "                                            </div>\r\n"
+						+ "                                            <div style=\"display:inline-block; max-width:50%; min-width:240px; vertical-align:top; width:100%;\">\r\n"
+						+ "                                                <table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:300px;\">\r\n"
+						+ "                                                    <tr>\r\n"
+						+ "                                                        <td align=\"center\" valign=\"top\" style=\"font-family: Open sans-serif; font-size: 20px; font-weight: 400; line-height: 24px;\">\r\n"
+						+ "                                                            <p style=\"font-weight: 800;\">Số điện thoại</p>\r\n"
+						+ "                                                            <p>" + order.getPhone()
+						+ "</p>\r\n" + "                                                        </td>");
+		content.append(FOOTER);
 		sendMailService.queue(order.getUser().getEmail(), "Thanh toán thành công", content.toString());
 	}
 
@@ -291,7 +355,7 @@ public class SendMailUtil {
 		return formatter.format(Double.valueOf(number)) + " VNĐ";
 	}
 
-	static String HEADERDELIVER = "<body style=\"margin: 0 !important; padding: 0 !important; background-color: #eeeeee;\" bgcolor=\"#eeeeee\">\r\n"
+	static String HEADERSUCCESS = "<body style=\"margin: 0 !important; padding: 0 !important; background-color: #eeeeee;\" bgcolor=\"#eeeeee\">\r\n"
 			+ "    <div style=\"display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Open Sans, Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;\">\r\n"
 			+ "        Vegana Store chuyên bán thực phẩm sạch\r\n"
 			+ "    </div>\r\n" + "    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\r\n"
@@ -329,7 +393,7 @@ public class SendMailUtil {
 			+ "                                                <td width=\"25%\" align=\"left\" bgcolor=\"#eeeeee\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 800; line-height: 24px; padding: 10px;\">Thành tiền</td>\r\n"
 			+ "                                            </tr>";
 
-	static String HEADERSUCCESS = "<body style=\"margin: 0 !important; padding: 0 !important; background-color: #eeeeee;\" bgcolor=\"#eeeeee\">\r\n"
+	static String HEADERDELIVER = "<body style=\"margin: 0 !important; padding: 0 !important; background-color: #eeeeee;\" bgcolor=\"#eeeeee\">\r\n"
 			+ "    <div style=\"display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Open Sans, Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;\">\r\n"
 			+ "        Vegana Store chuyên bán thực phẩm sạch\r\n"
 			+ "    </div>\r\n" + "    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\r\n"
@@ -352,13 +416,51 @@ public class SendMailUtil {
 			+ "                                <tr>\r\n"
 			+ "                                    <td align=\"center\" style=\"font-family: Open sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;\">\r\n"
 			+ "                                        <img src=\"https://res.cloudinary.com/veggie-shop/image/upload/v1634045009/assets/checked_pudgic.png?fbclid=IwAR2aTBpMU1Gbj8pVwuU6sH1lUAUEeK2U8df1mrI4zCyMT97OnjkEIbgBSQw\" width=\"115\" height=\"110\" style=\"display: block; border: 0px;\" /><br>\r\n"
-			+ "                                        <h2 style=\"font-size: 30px; font-weight: 800; line-height: 36px; color: #333333; margin: 0;\"> Xác nhận đã thanh toán thành công! </h2>\r\n"
+			+ "                                        <h2 style=\"font-size: 30px; font-weight: 800; line-height: 36px; color: #333333; margin: 0;\"> Đơn hàng đã được xác nhận! </h2>\r\n"
 			+ "                                        <p style=\"font-family: Open sans-serif; font-size: 18px;\"><em>Cảm ơn bạn đã tin tưởng! Chúng tôi sẽ nhanh chóng giao hàng cho bạn!</em></p>\r\n"
 			+ "                                    </td>\r\n" + "                                </tr>\r\n"
 			+ "                                \r\n" + "                                <tr>\r\n"
 			+ "                                    <td align=\"left\" style=\"padding-top: 20px;\">\r\n"
 			+ "                                        <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\r\n"
 			+ "                                            <p style=\"font-size: 20px;font-family: Open sans-serif; text-decoration: underline; width: 200px;\">Đơn hàng đã thanh toán:</p>\r\n"
+			+ "                                            <tr>\r\n"
+			+ "                                                <td width=\"25%\" align=\"left\" bgcolor=\"#eeeeee\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 800; line-height: 24px; padding: 10px;\">#</td>\r\n"
+			+ "                                                <td width=\"25%\" align=\"left\" bgcolor=\"#eeeeee\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 800; line-height: 24px; padding: 10px;\">Tên</td>\r\n"
+			+ "                                                <td width=\"25%\" align=\"left\" bgcolor=\"#eeeeee\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 800; line-height: 24px; padding: 10px;\">Số lượng</td>\r\n"
+			+ "                                                <td width=\"25%\" align=\"left\" bgcolor=\"#eeeeee\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 800; line-height: 24px; padding: 10px;\">Thành tiền</td>\r\n"
+			+ "                                            </tr>";
+	
+	static String HEADERPAYMENT = "<body style=\"margin: 0 !important; padding: 0 !important; background-color: #eeeeee;\" bgcolor=\"#eeeeee\">\r\n"
+			+ "    <div style=\"display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Open Sans, Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;\">\r\n"
+			+ "        Vegana Store chuyên bán thực phẩm sạch\r\n"
+			+ "    </div>\r\n" + "    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\r\n"
+			+ "        <tr>\r\n"
+			+ "            <td align=\"center\" style=\"background-color: #eeeeee;\" bgcolor=\"#eeeeee\">\r\n"
+			+ "                <table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:600px;\">\r\n"
+			+ "                    <tr>\r\n"
+			+ "                        <td align=\"center\" valign=\"top\" style=\"font-size:0; padding: 35px;\" bgcolor=\"#ddffd5\">\r\n"
+			+ "                            <div style=\"display:inline-block; max-width:50%; min-width:100px; vertical-align:top; width:100%;\">\r\n"
+			+ "                                <table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:300px;\">\r\n"
+			+ "                                    <tr>\r\n"
+			+ "                                        <td align=\"left\" valign=\"top\" style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 800; line-height: 48px;\" class=\"mobile-center\">\r\n"
+			+ "                                            <img src=\"https://res.cloudinary.com/veggie-shop/image/upload/v1634045009/assets/logo-email_fuazkt.png?fbclid=IwAR0Jkdr_k21c3Ih3_15k2GeJ8_q2XVK58LiThAZpoHMuBVD2Dprb2x1paYs\" width=\"220px\"/>\r\n"
+			+ "                                        </td>\r\n" + "                                    </tr>\r\n"
+			+ "                                </table>\r\n" + "                            </div>\r\n"
+			+ "                            \r\n" + "                        </td>\r\n" + "                    </tr>\r\n"
+			+ "                    <tr>\r\n"
+			+ "                        <td align=\"center\" style=\"padding: 35px 35px 20px 35px; background-color: #ffffff;\" bgcolor=\"#ffffff\">\r\n"
+			+ "                            <table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:600px;\">\r\n"
+			+ "                                <tr>\r\n"
+			+ "                                    <td align=\"center\" style=\"font-family: Open sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;\">\r\n"
+			+ "                                        <img src=\"https://res.cloudinary.com/veggie-shop/image/upload/v1634045009/assets/checked_pudgic.png?fbclid=IwAR2aTBpMU1Gbj8pVwuU6sH1lUAUEeK2U8df1mrI4zCyMT97OnjkEIbgBSQw\" width=\"115\" height=\"110\" style=\"display: block; border: 0px;\" /><br>\r\n"
+			+ "                                        <h2 style=\"font-size: 30px; font-weight: 800; line-height: 36px; color: #333333; margin: 0;\"> Giao hàng thành công! </h2>\r\n"
+			+ "                                        <p style=\"font-family: Open sans-serif; font-size: 18px;\"><em>Bạn đã thanh toán thành công! Chúng tôi sẽ sớm giao hàng cho bạn!</em></p>\r\n"
+			+ "                                        <p style=\"font-family: Open sans-serif; font-size: 18px;\"><em>Hẹn gặp lại quý khách!</em></p>\r\n"
+			+ "                                    </td>\r\n" + "                                </tr>\r\n"
+			+ "                                \r\n" + "                                <tr>\r\n"
+			+ "                                    <td align=\"left\" style=\"padding-top: 20px;\">\r\n"
+			+ "                                        <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\r\n"
+			+ "                                            <p style=\"font-size: 20px;font-family: Open sans-serif; text-decoration: underline; width: 200px;\">Đơn hàng đã giao:</p>\r\n"
 			+ "                                            <tr>\r\n"
 			+ "                                                <td width=\"25%\" align=\"left\" bgcolor=\"#eeeeee\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 800; line-height: 24px; padding: 10px;\">#</td>\r\n"
 			+ "                                                <td width=\"25%\" align=\"left\" bgcolor=\"#eeeeee\" style=\"font-family: Open sans-serif; font-size: 18px; font-weight: 800; line-height: 24px; padding: 10px;\">Tên</td>\r\n"
